@@ -1,0 +1,28 @@
+{
+    "name": "cann/laravel-sms-verification",
+    "description": "Laravel Sms Verification",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "陈问渔",
+            "email": "imcnny@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Cann\\Sms\\Verification\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "overtrue/easy-sms": "^1.1"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Cann\\Sms\\Verification\\ServiceProvider"
+            ]
+        }
+    }
+}
