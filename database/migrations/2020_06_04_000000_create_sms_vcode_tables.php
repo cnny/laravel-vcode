@@ -19,10 +19,11 @@ class CreateSmsVcodeTables extends Migration
             $table->string('mobile', 20);
             $table->string('vcode', 20);
             $table->string('content', 200);
-            $table->string('third_user_id', 191);
+            $table->timestamp('sent_at', 0);
+            $table->timestamp('expried_at', 0);
             $table->timestamps();
 
-            $table->unique(['platform', 'user_id', 'third_user_id']);
+            $table->index('mobile');
         });
     }
 
@@ -33,6 +34,6 @@ class CreateSmsVcodeTables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('admin_users_third_pf_bind');
+        Schema::dropIfExists('sms_vcodes');
     }
 }

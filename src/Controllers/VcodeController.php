@@ -6,17 +6,20 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Cann\Sms\Verification\Business\SmsBusiness;
 
-class SmsController extends Controller
+class VcodeController extends Controller
 {
     // 发送手机短信验证码
     public function send(Request $request)
     {
+        $config = config('vcode.channel.' . $request->channel);
+
         $request->validate([
-            'mobile' => 'required|zh_mobile',
+            'channel'        => 'required',
+            $config['field'] => $config['validation'],
         ]);
 
-        $result = SmsBusiness::sendVerifyCode($request->mobile);
+        $response = VcodeBusiness::sendVcode($request->mobile);
 
-        return ok(__FUNCTION__, $result);
+        return $response;
     }
 }
