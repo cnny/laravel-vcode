@@ -10,19 +10,19 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Cann\Sms\Verification\Models\SmsVcode;
+use Cann\Sms\Verification\Models\Vcode;
 use Cann\Sms\Verification\Business\SmsBusiness;
 
-class SendSmsVcodeJob implements ShouldQueue
+class SendVcodeJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $smsVcode;
+    private $vcode;
     private $message;
 
-    public function __construct(SmsVcode $smsVcode)
+    public function __construct(Vcode $vcode)
     {
-        $this->smsVcode = $smsVcode;
+        $this->Vcode = $vcode;
 
         // 指定队列
         $this->queue = config('vcode.queue.channel', 'default');
@@ -30,6 +30,6 @@ class SendSmsVcodeJob implements ShouldQueue
 
     public function handle()
     {
-        SmsBusiness::sendVcodeRPC($this->smsVcode);
+        SmsBusiness::sendVcodeRPC($this->Vcode);
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSmsVcodeTables extends Migration
+class CreateVcodeTables extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateSmsVcodeTables extends Migration
      */
     public function up()
     {
-        Schema::create('sms_vcodes', function (Blueprint $table) {
+        Schema::create('vcodes', function (Blueprint $table) {
 
             $table->increments('id');
-            $table->string('mobile', 20);
+            $table->string('channel', 20);
+            $table->string('target', 100);
             $table->string('vcode', 20);
             $table->string('content', 200);
             $table->timestamp('sent_at', 0);
@@ -34,6 +35,6 @@ class CreateSmsVcodeTables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sms_vcodes');
+        Schema::dropIfExists('vcodes');
     }
 }

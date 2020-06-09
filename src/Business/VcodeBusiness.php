@@ -4,17 +4,18 @@ namespace Cann\Sms\Verification\Business;
 
 use Carbon\Carbon;
 use Overtrue\EasySms\EasySms;
-use Cann\Sms\Verification\Models\SmsVcode;
-use Cann\Sms\Verification\Jobs\SendSmsVcodeJob;
+use Cann\Sms\Verification\Models\Vcode;
+use Cann\Sms\Verification\Jobs\SendVcodeJob;
 use Cann\Sms\Verification\Helpers\ToolsHelper;
 
 class VcodeBusiness
 {
     // 发送短信验证码
-    public static function sendVcode(string $mobile)
+    public static function sendVcode(string $channel, string $target)
     {
         // 获取上次发送时间
-        $lastSentAt = SmsVcode::where('mobile', $mobile)
+        $lastSentAt = Vcode::where('channel', $channel)
+            ->where('target', $target)
             ->orderBy('created_at', 'desc')
             ->value('created_at');
 
@@ -27,23 +28,24 @@ class VcodeBusiness
         $vcode = self::generateVcode(config('vcode.vcode.length', 4));
 
         // 创建发送记录
-        $smsVcode = SmsVcode::create([
-            'mobile' => $mobile,
-            'vcode'  => $vcode,
-            'status' => SmsVcode::STATUS_WAITING,
+        $vcode = Vcode::create([
+            'channel' => $channel,
+            'target'  => $target,
+            'vcode'   => $vcode,
+            'status'  => Vcode::STATUS_WAITING,
         ]);
 
         // 发送验证码
         if (config('vcode.queue.enable')) {
-            SendSmsVcodeJob::dispatch($smsVcode);
+            SendVcodeJob::dispatch($vcode);
         } else {
-            SendSmsVcodeJob::dispatchNow($smsVcode);
+            SendVcodeJob::dispatchNow($vcode);
         }
 
         return ToolsHelper::output('sent_success', ['seconds' => config('vcode.interval')]);
     }
 
-    public static function sendVcodeRPC(SmsVcode $smsVcode)
+    public static function sendVcodeRPC(Vcode $vcode)
     {
         $easySms = new EasySms(config('easysms'));
 
@@ -51,7 +53,7 @@ class VcodeBusiness
 
         if (! $content['template'] && $content['content']) {
 
-            $content['data'] = json_decode(ToolsHelper::_T(json_encode($content['data']), ['code' => $smsVcode->vcode]), true);
+            $content['data'] = json_decode(ToolsHelper::_T(json_encode($content['data']), ['code' => $vcode->vcode]), true);
 
             $content['content'] = ToolsHelper::_T($content['content'], $content['data']);
 
@@ -65,10 +67,10 @@ class VcodeBusiness
 
         try {
 
-            $result = $easySms->send($smsVcode->mobile, $content);
+            $result = $easySms->send($vcode->mobile, $content);
 
-            $smsVcode->update([
-                'status'     => SmsVcode::STATUS_SUCCEED,
+            $vcode->update([
+                'status'     => Vcode::STATUS_SUCCEED,
                 'content'    => $content,
                 'result'     => $result,
                 'sent_at'    => date('Y-m-d H:i:s'),
@@ -77,8 +79,8 @@ class VcodeBusiness
 
         } catch (\Throwable $e) {
 
-            $smsVcode->update([
-                'status'     => SmsVcode::STATUS_FAILED,
+            $vcode->update([
+                'status'     => Vcode::STATUS_FAILED,
                 'content'    => $content,
                 'failed_msg' => $e->getExceptions(),
             ]);
@@ -98,7 +100,7 @@ class VcodeBusiness
         }
 
         // 获取最近一条短信
-        $sms = SmsVcode::where('mobile', $mobile)
+        $sms = Vcode::where('mobile', $mobile)
             ->orderBy('sent_at', 'desc')
             ->value('vcode');
 

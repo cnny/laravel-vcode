@@ -18,7 +18,7 @@ class VcodeController extends Controller
             $config['field'] => $config['validation'],
         ]);
 
-        $response = VcodeBusiness::sendVcode($request->mobile);
+        $response = VcodeBusiness::sendVcode($request->channel, $request->{$config['field']});
 
         return $response;
     }

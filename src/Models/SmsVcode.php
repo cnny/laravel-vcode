@@ -4,7 +4,7 @@ namespace Cann\Sms\Verification\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SmsVcode extends Model
+class Vcode extends Model
 {
     protected $guarded = [];
 
