@@ -21,7 +21,9 @@ return [
         'max_attempts' => 3,
     ],
 
-    'channel' => [
+    'channels' => [
+
+        'default' => 'sms',
 
         'sms' => [
 
@@ -29,12 +31,19 @@ return [
 
             'validation' => 'required|zh_mobile',
 
-            'content' => [
-                'content'  => '您的验证码为: {code}, 验证码有效期5分钟',
-                'template' => '',
-                'data' => [
-                    'code' => '{code}'
-                ],
+            'scenes' => [
+
+                'scene1' => [
+
+                    'qcloud' => [
+
+                        'content'  => '您的验证码为：{vcode}，若非本人操作，请勿泄露。',
+                        'template' => '',
+                        'data' => [
+                            'code' => '{vcode}'
+                        ],
+                    ],
+                ]
             ],
         ],
     ],

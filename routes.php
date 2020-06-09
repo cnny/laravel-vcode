@@ -5,9 +5,9 @@ use Illuminate\Routing\Router;
 Route::group([
     'prefix'        => config('vcode.route.prefix'),
     'middleware'    => config('vcode.route.middleware'),
-    'namespace'     => 'Cann\Sms\Verification\Controllers',
+    'namespace'     => 'Cann\Vcode\Controllers',
 ], function (Router $router) {
 
-    $router->post('/sms/vcode', 'SmsController@send');
+    $router->post('/vcode', 'VcodeController@send');
 
 });

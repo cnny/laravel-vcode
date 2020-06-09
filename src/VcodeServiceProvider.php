@@ -1,12 +1,13 @@
 <?php
 
-namespace Cann\Sms\Verification;
+namespace Cann\Vcode;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Cann\Vcode\Business\VcodeBusiness;
 
-class SmsServiceProvider extends BaseServiceProvider
+class VcodeServiceProvider extends BaseServiceProvider
 {
     /**
      * Boot the service provider.
@@ -44,7 +45,7 @@ class SmsServiceProvider extends BaseServiceProvider
 
         // 验证短信验证码有效性
         \Validator::extend('verify_vcode', function ($attribute, $value) {
-
-        }, '你输入的是一个无效的手机号码');
+            return VcodeBusiness::verifyVcode(request('vcode_key'), $value);
+        }, '验证失败');
     }
 }

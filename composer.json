@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Cann\\Sms\\Verification\\": "src/"
+            "Cann\\Vcode\\": "src/"
         }
     },
     "minimum-stability": "dev",
@@ -21,7 +21,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Cann\\Sms\\Verification\\SmsServiceProvider"
+                "Cann\\Vcode\\VcodeServiceProvider"
             ]
         }
     }

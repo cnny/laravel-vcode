@@ -1,6 +1,6 @@
 <?php
 
-namespace Cann\Sms\Verification\Helpers;
+namespace Cann\Vcode\Helpers;
 
 class ToolsHelper
 {
