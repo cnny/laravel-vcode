@@ -8,6 +8,8 @@ Route::group([
     'namespace'     => 'Cann\Vcode\Controllers',
 ], function (Router $router) {
 
-    $router->post('/vcode', 'VcodeController@send');
+    $router->post('/vcode', 'VcodeController@send')->name('send-vcode');
+
+    $router->get('/captcha', 'VcodeController@captcha')->name('vcode-captcha');
 
 });

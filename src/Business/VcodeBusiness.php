@@ -2,27 +2,32 @@
 
 namespace Cann\Vcode\Business;
 
+use Cache;
 use Carbon\Carbon;
 use Cann\Vcode\Models\Vcode;
 use Cann\Vcode\Jobs\SendVcodeJob;
 use Cann\Vcode\Helpers\ToolsHelper;
 use Cann\Vcode\Notifications\VcodeNotification;
+use Mews\Captcha\Captcha;
 
 class VcodeBusiness
 {
     // 发送短信验证码
-    public static function sendVcode(string $channel, string $scene, string $target)
-    {
-        // 获取上次发送时间
-        $lastSentAt = Vcode::where('channel', $channel)
-            ->where('scene', $scene)
-            ->where('target', $target)
-            ->orderBy('created_at', 'desc')
-            ->value('created_at');
+    public static function sendVcode(
+        string $channel,
+        string $scene,
+        string $target,
+        string $captchaKey,
+        string $captchaCode
+    ) {
+        // 冷却时间
+        if ($coolingTime = self::validateCoolingTime($channel, $scene, $target)) {
+            return ToolsHelper::output('cooling_time', ['seconds' => $coolingTime]);
+        }
 
-        // 还需冷却 X 秒
-        if ($lastSentAt && ($coolingTime = now()->diffInSeconds($lastSentAt, true)) <= config('vcode.interval')) {
-            // return ToolsHelper::output('cooling_time', ['seconds' => config('vcode.interval') - $coolingTime]);
+        // 验证图形验证码
+        if (! self::validateCaptcha($captchaKey, $captchaCode)) {
+            return ToolsHelper::output('captcha_invalid', ['captcha_api' => route('vcode-captcha')]);
         }
 
         // 将未使用的验证码置为已废弃
@@ -38,15 +43,11 @@ class VcodeBusiness
         // 生成验证码
         $vcode = self::generateVcode(config('vcode.vcode.length', 4));
 
-        // 生产验证码对应Key
-        $vcodeKey = \Str::random(36);
-
         // 创建发送记录
         $vcode = Vcode::create([
             'channel'    => $channel,
             'scene'      => $scene,
             'target'     => $target,
-            'vcode_key'  => $vcodeKey,
             'vcode'      => $vcode,
             'status'     => Vcode::STATUS_UNUSED,
             'sent_at'    => date('Y-m-d H:i:s'),
@@ -63,13 +64,54 @@ class VcodeBusiness
         }
 
         return ToolsHelper::output('sent_success', [
-            'seconds'   => config('vcode.interval'),
-            'vcode_key' => $vcodeKey,
+            'seconds' => config('vcode.interval'),
         ]);
     }
 
+    // 验证冷却时间
+    protected static function validateCoolingTime(string $channel, string $scene, string $target)
+    {
+        // 获取上次发送时间
+        $lastSentAt = Vcode::where('channel', $channel)
+            ->where('scene', $scene)
+            ->where('target', $target)
+            ->orderBy('created_at', 'desc')
+            ->value('created_at');
+
+        // 还需冷却 X 秒
+        if ($lastSentAt && ($coolingTime = now()->diffInSeconds($lastSentAt, true)) <= config('vcode.interval')) {
+            return config('vcode.interval') - $coolingTime;
+        }
+
+        return 0;
+    }
+
+    // 短信发送总数是否达到触发图形验证码阈值
+    protected static function validateCaptcha(string $captchaKey, string $captchaCode)
+    {
+        $sendNum = Vcode::whereRaw("DATE_FORMAT(created_at, '%Y-%m-%d H') = '" . date('Y-m-d H') . "'")->count();
+
+        // 未达到图形验证码阈值
+        if ($sendNum < config('vcode.captcha.trigger_by_vcode_num_hourly')) {
+            return true;
+        }
+
+        // 验证通过
+        if (self::verifyCaptcha($captchaKey, $captchaCode)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // 生成短信验证码
+    protected static function generateVcode(int $length)
+    {
+        return mt_rand(pow(10, $length - 1), pow(10, $length) - 1);
+    }
+
     // 验证码验证
-    public static function verifyVcode(string $vcodeKey, string $vcode)
+    public static function verifyVcode(string $channel, string $scene, string $target, string $vcode)
     {
         // 万能验证码
         $universal = config('biz.universal_code');
@@ -78,15 +120,16 @@ class VcodeBusiness
             return true;
         }
 
-        $rVcode = Vcode::where('vcode_key', $vcodeKey)->orderBy('id', 'desc')->first();
+        if (! $channel || ! $scene || ! $target || ! $vcode) {
+            return false;
+        }
 
-        // 无效的 vcodeKey
-        if (! $rVcode) {
+        if (! $rVcode = Vcode::where(compact('channel', 'scene', 'target', 'vcode'))->orderBy('id', 'desc')->first()) {
             return false;
         }
 
         // 已达最大尝试次数
-        if ($rVcode->attempts >= config('vcode.vcode.max_attempts')) {
+        if (config('vcode.vcode.max_attempts') > 0 && $rVcode->attempts >= config('vcode.vcode.max_attempts')) {
             return false;
         }
 
@@ -114,9 +157,44 @@ class VcodeBusiness
         return true;
     }
 
-    // 生成短信验证码
-    protected static function generateVcode(int $length)
+    // 获取图形验证码
+    public static function getCaptcha()
     {
-        return mt_rand(pow(10, $length - 1), pow(10, $length) - 1);
+        $captcha = self::mewsCaptcha()->create('vcode', true);
+
+        return ToolsHelper::output('captcha_response', [
+            'sensitive'   => $captcha['sensitive'],
+            'captcha_key' => $captcha['key'],
+            'captcha_img' => $captcha['img'],
+        ]);
+    }
+
+    // 验证图形验证码
+    protected static function verifyCaptcha(string $key, string $captcha)
+    {
+        if (! $key || ! $captcha) {
+            return false;
+        }
+
+        $cacheKey = 'UsedCaptchaKey:' . $key;
+
+        // 验证码错误
+        if (! self::mewsCaptcha()->check_api($captcha, $key)) {
+            return false;
+        }
+
+        return Cache::add($cacheKey, 1);
+    }
+
+    protected static function mewsCaptcha()
+    {
+        return new Captcha(
+            app('Illuminate\Filesystem\Filesystem'),
+            app('Illuminate\Contracts\Config\Repository'),
+            app('Intervention\Image\ImageManager'),
+            app('Illuminate\Session\Store'),
+            app('Illuminate\Hashing\BcryptHasher'),
+            app('Illuminate\Support\Str')
+        );
     }
 }

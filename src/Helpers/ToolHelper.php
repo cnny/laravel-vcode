@@ -41,6 +41,6 @@ class ToolsHelper
             'data'    => $data,
         ];
 
-        return $response;
+        return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }

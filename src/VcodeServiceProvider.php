@@ -18,9 +18,13 @@ class VcodeServiceProvider extends BaseServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes.php');
 
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
         $this->registerPublishing();
 
         $this->registerValidator();
+
+        $this->initConfig();
     }
 
     public function register()
@@ -45,7 +49,26 @@ class VcodeServiceProvider extends BaseServiceProvider
 
         // 验证短信验证码有效性
         \Validator::extend('verify_vcode', function ($attribute, $value) {
-            return VcodeBusiness::verifyVcode(request('vcode_key'), $value);
-        }, '验证失败');
+
+            // 发送渠道
+            $channel = request('channel') ?: config('vcode.channels.default');
+
+            if (! $channelCnf = config('vcode.channels.' . $channel)) {
+                return false;
+            }
+
+            return VcodeBusiness::verifyVcode(
+                $channel,
+                request('scene') ?? '',
+                request($channelCnf['field']) ?? '',
+                $value
+            );
+
+        }, '验证码验证失败');
+    }
+
+    protected function initConfig()
+    {
+        config(['captcha.vcode' => config('vcode.captcha.config')]);
     }
 }

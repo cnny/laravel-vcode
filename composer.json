@@ -1,5 +1,5 @@
 {
-    "name": "cann/laravel-sms-verification",
+    "name": "cann/laravel-vcode",
     "description": "Laravel Sms Verification",
     "type": "library",
     "license": "MIT",
@@ -12,11 +12,15 @@
     "autoload": {
         "psr-4": {
             "Cann\\Vcode\\": "src/"
-        }
+        },
+        "files": [
+            "src/Helpers/Functions.php"
+        ]
     },
     "minimum-stability": "dev",
     "require": {
-        "overtrue/easy-sms": "^1.1"
+        "overtrue/easy-sms": "^1.1",
+        "mews/captcha": "^3.0"
     },
     "extra": {
         "laravel": {

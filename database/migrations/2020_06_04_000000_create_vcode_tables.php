@@ -17,14 +17,16 @@ class CreateVcodeTables extends Migration
 
             $table->increments('id');
             $table->string('channel', 20);
+            $table->string('scene', 100);
             $table->string('target', 100);
             $table->string('vcode', 20);
-            $table->string('content', 200);
             $table->timestamp('sent_at', 0);
             $table->timestamp('expried_at', 0);
+            $table->unsignedInteger('attempts')->default(0);
+            $table->unsignedTinyInteger('status')->default(0);
             $table->timestamps();
 
-            $table->index('mobile');
+            $table->index(['channel', 'scene', 'target']);
         });
     }
 

@@ -57,7 +57,18 @@ return [
         // 每小时若发送到指定 {trigger_by_vcode_num_hourly} 次数，需要返回图片验证码验证
         'trigger_by_vcode_num_hourly' => 10000,
 
-        'length' => 4,
+        'config' => [
+            'length'    => 5,
+            'width'     => 120,
+            'height'    => 36,
+            'quality'   => 90,
+            'sensitive' => false,
+            'angle'     => 12,
+            'sharpen'   => 10,
+            'blur'      => 2,
+            'invert'    => true,
+            'contrast'  => -5,
+        ],
     ],
 
     // 队列
@@ -89,6 +100,18 @@ return [
         'cooling_time' => [
             'code'    => -1,
             'message' => '你的动作太快了，请在 {seconds} 秒后重试',
+        ],
+
+        // 输入图形验证码
+        'captcha_invalid' => [
+            'code'    => -101,
+            'message' => '请输入图形验证码',
+        ],
+
+        // 图形验证码获取成功
+        'captcha_response' => [
+            'code'    => 0,
+            'message' => '图形验证码获取成功',
         ],
     ],
 ];
