@@ -1,6 +1,6 @@
 # laravel-vcode
 
-便捷的验证码发送工具，目前支持基于[easysms][https://github.com/overtrue/easy-sms]的短信验证码
+便捷的验证码发送工具，目前支持基于[easysms]https://github.com/overtrue/easy-sms 的短信验证码
 
 ### 安装
 
