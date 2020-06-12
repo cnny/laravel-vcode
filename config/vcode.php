@@ -25,19 +25,25 @@ return [
 
         'default' => 'sms',
 
+        // 短信验证码
         'sms' => [
 
+            // 手机号字段名
             'field' => 'mobile',
 
+            // 手机号验证规则
             'validation' => 'required|zh_mobile',
 
+            // 发送场景
             'scenes' => [
 
+                // 场景1
                 'scene1' => [
 
+                    // 短信服务商模板（
+                    // 注：{vcdoe}为变量，发送时会以实际验证码替换
                     'qcloud' => [
-
-                        'content'  => '您的验证码为：{vcode}，若非本人操作，请勿泄露。',
+                        'content'  => '验证码为：{vcode}，您正在登录，若非本人操作，请勿泄露。',
                         'template' => '',
                         'data' => [
                             'code' => '{vcode}'
@@ -57,17 +63,18 @@ return [
         // 每小时若发送到指定 {trigger_by_vcode_num_hourly} 次数，需要返回图片验证码验证
         'trigger_by_vcode_num_hourly' => 10000,
 
+        // 图形验证码配置
         'config' => [
-            'length'    => 5,
-            'width'     => 120,
-            'height'    => 36,
-            'quality'   => 90,
-            'sensitive' => false,
-            'angle'     => 12,
-            'sharpen'   => 10,
-            'blur'      => 2,
-            'invert'    => true,
-            'contrast'  => -5,
+            'length'    => 5,     // 验证码长度
+            'width'     => 120,   // 图片宽度
+            'height'    => 36,    // 图片高度
+            'quality'   => 90,    // 图片质量
+            'sensitive' => false, // 是否启用大小写敏感
+            'angle'     => 12,    // 角度
+            'sharpen'   => 10,    // 锐化
+            'blur'      => 2,     // 模糊
+            'invert'    => false, // 反色
+            'contrast'  => -5,    // 对比度
         ],
     ],
 
@@ -87,7 +94,7 @@ return [
         'middleware' => ['api'],
     ],
 
-    // 提示信息
+    // 接口 response
     'responses' => [
 
         // 发送成功
@@ -97,6 +104,7 @@ return [
         ],
 
         // 冷却时间未到
+        // 注：{seconds} 为变量，会在实际响应时替换
         'cooling_time' => [
             'code'    => -1,
             'message' => '你的动作太快了，请在 {seconds} 秒后重试',
@@ -108,7 +116,7 @@ return [
             'message' => '请输入图形验证码',
         ],
 
-        // 图形验证码获取成功
+        // 图形验证码
         'captcha_response' => [
             'code'    => 0,
             'message' => '图形验证码获取成功',
