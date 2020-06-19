@@ -92,5 +92,5 @@ or
 
 #### 验证码校验
 
-- 使用 Validator 验证，可在 `vcode` 参数上加上 `verify_code` 验证器进行验证，`verify_code` 会自动读取请求中的 `channel` `scene` `mobile` `vcode` 参数进行校验
-- 使用 `verify_code(string $channel, string $scene, string $mobile, string $vcode)` 方法进行校验
+- 使用 Validator 验证，可在 `vcode` 参数上加上 `verify_code` 验证器进行验证，`verify_vcode` 会自动读取请求中的 `channel` `scene` `mobile` `vcode` 参数进行校验
+- 使用 `verify_vcode(string $scene, string $mobile, string $vcode, string $channel)` 方法进行校验
