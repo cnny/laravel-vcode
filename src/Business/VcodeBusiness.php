@@ -89,7 +89,7 @@ class VcodeBusiness
     // 短信发送总数是否达到触发图形验证码阈值
     protected static function validateCaptcha(string $captchaKey, string $captchaCode)
     {
-        $sendNum = Vcode::whereRaw("DATE_FORMAT(created_at, '%Y-%m-%d H') = '" . date('Y-m-d H') . "'")->count();
+        $sendNum = Vcode::whereRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H') = '" . date('Y-m-d H') . "'")->count();
 
         // 未达到图形验证码阈值
         if ($sendNum < config('vcode.captcha.trigger_by_vcode_num_hourly')) {
