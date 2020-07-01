@@ -6,6 +6,6 @@ if (! function_exists('verify_vcode')) {
     {
         $channel = $channel ?: config('vcode.channels.default');
 
-        \Cann\Vcode\Business\VcodeBusiness::verifyVcode($channel, $scene, $target, $vcode);
+        return \Cann\Vcode\Business\VcodeBusiness::verifyVcode($channel, $scene, $target, $vcode);
     }
 }
