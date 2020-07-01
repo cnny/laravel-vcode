@@ -48,7 +48,7 @@ class VcodeServiceProvider extends BaseServiceProvider
         }, '你输入的是一个无效的手机号码');
 
         // 验证短信验证码有效性
-        \Validator::extend('verify_vcode', function ($attribute, $value) {
+        \Validator::extend('verify_vcode', function ($attribute, $value, $parameters) {
 
              // 发送渠道
             $channel = $parameters[1] ?? config('vcode.channels.default');
