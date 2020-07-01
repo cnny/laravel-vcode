@@ -50,8 +50,8 @@ class VcodeServiceProvider extends BaseServiceProvider
         // 验证短信验证码有效性
         \Validator::extend('verify_vcode', function ($attribute, $value) {
 
-            // 发送渠道
-            $channel = request('channel') ?: config('vcode.channels.default');
+             // 发送渠道
+            $channel = $parameters[1] ?? config('vcode.channels.default');
 
             if (! $channelCnf = config('vcode.channels.' . $channel)) {
                 return false;
@@ -59,11 +59,10 @@ class VcodeServiceProvider extends BaseServiceProvider
 
             return VcodeBusiness::verifyVcode(
                 $channel,
-                request('scene') ?? '',
+                $parameters[0] ?? '',
                 request($channelCnf['field']) ?? '',
                 $value
             );
-
         }, '验证码验证失败');
     }
 
