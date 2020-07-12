@@ -40,8 +40,12 @@ return [
                 // 场景1
                 'scene1' => [
 
-                    // 短信服务商模板（
-                    // 注：{vcdoe}为变量，发送时会以实际验证码替换
+                    // 发送前的钩子检测
+                    '_hook_pre_send' => function (string $target) {
+                        // ...
+                    },
+
+                    // 短信服务商模板
                     'qcloud' => [
                         'content'  => '验证码为：{vcode}，您正在登录，若非本人操作，请勿泄露。',
                         'template' => '',

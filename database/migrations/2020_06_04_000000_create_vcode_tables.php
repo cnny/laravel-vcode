@@ -20,8 +20,8 @@ class CreateVcodeTables extends Migration
             $table->string('scene', 100);
             $table->string('target', 100);
             $table->string('vcode', 20);
-            $table->timestamp('sent_at', 0);
-            $table->timestamp('expried_at', 0);
+            $table->timestamp('sent_at', 0)->nullable();
+            $table->timestamp('expried_at', 0)->nullable();
             $table->unsignedInteger('attempts')->default(0);
             $table->unsignedTinyInteger('status')->default(0);
             $table->timestamps();

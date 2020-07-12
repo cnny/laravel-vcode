@@ -20,6 +20,9 @@ class VcodeBusiness
         string $captchaKey,
         string $captchaCode
     ) {
+        // 钩子检测
+        self::callHookFunc($channel, $scene, $target, '_hook_pre_send');
+
         // 冷却时间
         if ($coolingTime = self::validateCoolingTime($channel, $scene, $target)) {
             return ToolsHelper::output('cooling_time', ['seconds' => $coolingTime]);
@@ -66,6 +69,17 @@ class VcodeBusiness
         return ToolsHelper::output('sent_success', [
             'seconds' => config('vcode.interval'),
         ]);
+    }
+
+    protected static function callHookFunc(string $channel, string $scene, string $target, string $hookName)
+    {
+        $channelCnf = config('vcode.channels.' . $channel);
+
+        $hookFunc = $channelCnf['scenes'][$scene][$hookName] ?? null;
+
+        if ($hookFunc && is_callable($hookFunc)) {
+            $hookFunc($target);
+        }
     }
 
     // 验证冷却时间

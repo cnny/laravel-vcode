@@ -5,6 +5,7 @@ namespace Cann\Vcode\Notifications\Channels;
 use Overtrue\EasySms\EasySms;
 use Cann\Vcode\Helpers\ToolsHelper;
 use Illuminate\Notifications\Notification;
+use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
 
 class SmsChannel
 {
@@ -21,18 +22,23 @@ class SmsChannel
             'vcode' => $vcode->vcode,
         ]), true);
 
-        $easySms->send($notifiable->routes['target'], [
-            'content' => function ($gateway) use ($content) {
-                $content = $content[$gateway->getName()]['content'] ?? '';
-                return $content ?: null;
-            },
-            'template' => function ($gateway) use ($content) {
-                $template = $content[$gateway->getName()]['template'] ?? '';
-                return  $template ?: null;
-            },
-            'data' => function ($gateway) use ($content) {
-                return $content[$gateway->getName()]['data'] ?? [];
-            }
-        ]);
+        try {
+            $easySms->send($notifiable->routes['target'], [
+                'content' => function ($gateway) use ($content) {
+                    $content = $content[$gateway->getName()]['content'] ?? '';
+                    return $content ?: null;
+                },
+                'template' => function ($gateway) use ($content) {
+                    $template = $content[$gateway->getName()]['template'] ?? '';
+                    return  $template ?: null;
+                },
+                'data' => function ($gateway) use ($content) {
+                    return $content[$gateway->getName()]['data'] ?? [];
+                }
+            ]);
+        }
+        catch (NoGatewayAvailableException $e) {
+            throw $e;
+        }
     }
 }
