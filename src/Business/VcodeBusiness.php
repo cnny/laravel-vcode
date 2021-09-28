@@ -71,7 +71,7 @@ class VcodeBusiness
         ]);
     }
 
-    protected static function callHookFunc(string $channel, string $scene, string $target, string $hookName)
+    protected static function callHookFunc(string $channel, string $scene, string &$target, string $hookName)
     {
         $channelCnf = config('vcode.channels.' . $channel);
 
