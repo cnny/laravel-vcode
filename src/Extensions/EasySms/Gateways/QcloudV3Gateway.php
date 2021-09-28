@@ -92,6 +92,10 @@ class QcloudV3Gateway extends Gateway
             throwx('TencentCloud 响应内容为空');
         }
 
+        if ($body['SendStatusSet'][0]['Code'] != 'Ok') {
+            throwx('TencentCloud 短信异常：' . $body['SendStatusSet'][0]['Message'] . ' | ' . $body['SendStatusSet'][0]['Code']);
+        }
+
         return $body;
     }
 }

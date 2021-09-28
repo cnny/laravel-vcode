@@ -23,7 +23,7 @@ return [
     'gateways' => [
 
         'errorlog' => [
-            'file' => '/tmp/easy-sms.log',
+            'file' => storage_path('logs/easy-sms.log'),
         ],
 
         'qcloud_v3' => [
