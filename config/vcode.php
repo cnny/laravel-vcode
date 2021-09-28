@@ -41,7 +41,7 @@ return [
                 'scene1' => [
 
                     // 发送前的钩子检测
-                    '_hook_pre_send' => function (string $target) {
+                    '_hook_pre_send' => function (string &$target) {
                         // ...
                     },
 
