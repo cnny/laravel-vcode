@@ -29,6 +29,7 @@ return [
         'qcloud_v3' => [
             'secret_id'  => env('SMS_QCLOUD_SECRET_ID'),
             'secret_key' => env('SMS_QCLOUD_SECRET_KEY'),
+            'region'     => env('SMS_QCLOUD_REGION'),
             'sdk_app_id' => env('SMS_QCLOUD_APP_ID'),
             'app_key'    => env('SMS_QCLOUD_APP_KEY'),
             'sign_name'  => env('SMS_SIGN_NAME'),
