@@ -43,4 +43,42 @@ class ToolsHelper
 
         return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
+
+    // 记录第三方请求日志
+    public static function logging(array $args, callable $callback)
+    {
+        // 当前时间
+        $nowMs = microtime(true);
+
+        // 请求流水号
+        $requestSn = \Str::orderedUuid();
+
+        // 记录请求报文
+        \Log::channel('api_request')->info('req:' . $requestSn, [
+            'req_args' => $args,
+        ]);
+
+        try {
+
+            $response = call_user_func_array($callback, $args);
+
+            // 记录响应报文（正常）
+            \Log::channel('api_request')->info('resp:' . $requestSn, [
+                'resp_body' => $response,
+                'elapsed'   => round(microtime(true) - $nowMs, 6),
+            ]);
+        }
+
+        catch (\Throwable $e) {
+
+            \Log::channel('api_request')->info('resp_err:' . $requestSn, [
+                'exception' => getFullException($e),
+                'elapsed'   => round(microtime(true) - $nowMs, 6),
+            ]);
+
+            throw $e;
+        }
+
+        return $response;
+    }
 }

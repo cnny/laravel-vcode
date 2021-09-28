@@ -20,7 +20,8 @@
     "minimum-stability": "dev",
     "require": {
         "overtrue/easy-sms": "^1.1",
-        "mews/captcha": "^3.0"
+        "mews/captcha": "^3.0",
+        "tencentcloud/tencentcloud-sdk-php": "dev-master"
     },
     "extra": {
         "laravel": {

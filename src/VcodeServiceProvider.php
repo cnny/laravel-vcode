@@ -5,7 +5,9 @@ namespace Cann\Vcode;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Overtrue\EasySms\EasySms;
 use Cann\Vcode\Business\VcodeBusiness;
+use Cann\Vcode\Extensions\EasySms\Gateways\QcloudV3Gateway;
 
 class VcodeServiceProvider extends BaseServiceProvider
 {
@@ -25,6 +27,8 @@ class VcodeServiceProvider extends BaseServiceProvider
         $this->registerValidator();
 
         $this->initConfig();
+
+        $this->initEasySms();
     }
 
     public function register()
@@ -69,5 +73,16 @@ class VcodeServiceProvider extends BaseServiceProvider
     protected function initConfig()
     {
         config(['captcha.vcode' => config('vcode.captcha.config')]);
+    }
+
+    protected function initEasySms()
+    {
+        $this->app->singleton('easysms', function ($app) {
+            $easySms = new EasySms(config('easysms'));
+            $easySms->extend('qcloud_v3', function ($gatewayConfig) {
+                return new QcloudV3Gateway($gatewayConfig);
+            });
+            return $easySms;
+        });
     }
 }

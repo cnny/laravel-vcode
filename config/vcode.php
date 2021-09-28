@@ -46,9 +46,8 @@ return [
                     },
 
                     // 短信服务商模板
-                    'qcloud' => [
-                        'content'  => '验证码为：{vcode}，您正在登录，若非本人操作，请勿泄露。',
-                        'template' => '',
+                    'qcloud_v3' => [
+                        'template' => env('SMS_QCLOUD_VCODE_TPL'),
                         'data' => [
                             'code' => '{vcode}'
                         ],
