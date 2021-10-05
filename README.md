@@ -28,6 +28,21 @@ php artisan migrate
 
 ### 使用
 
+#### 定义环境变量
+
+修改 `.env` 加入相关配置（以腾讯云短信通道为例）：
+
+```ini
+SMS_QCLOUD_SECRET_ID=
+SMS_QCLOUD_SECRET_KEY=
+SMS_QCLOUD_REGION=
+SMS_QCLOUD_APP_ID=
+SMS_QCLOUD_APP_KEY=
+SMS_QCLOUD_VCODE_TPL=
+SMS_QCLOUD_VCODE_TPL_INTL=
+SMS_SIGN_NAME=高灯科技
+```
+
 #### 发送验证码
 
 该工具提供了统一的接口进行验证码发送：

@@ -10,12 +10,8 @@ class SmsChannel
 {
     public function send($notifiable, Notification $notification)
     {
-        $vcode = $notification->vcode;
-
-        $content = config('vcode.channels.sms.scenes.' . $vcode->scene);
-
-        // 替换模板中的验证码
-        $content = json_decode(ToolsHelper::_T(json_encode($content), ['vcode' => $vcode->vcode]), true);
+        // 发送场景
+        $scene = config('vcode.channels.sms.scenes.' . $notification->vcode->scene);
 
         // 国际区码
         $IDDCode = null;
@@ -27,20 +23,41 @@ class SmsChannel
             $mobile = $notifiable->routes['target'];
         }
 
-        $phoneNumber = new PhoneNumber($mobile, $IDDCode);
+        $to = new PhoneNumber($mobile, $IDDCode);
 
-        app('easysms')->send($phoneNumber, [
-            'content' => function ($gateway) use ($content) {
-                $content = $content[$gateway->getName()]['content'] ?? '';
-                return $content ?: null;
+        app('easysms')->send($to, [
+
+            // 短信文本
+            'content' => function ($gateway) use ($scene, $notification, $to) {
+
+                $content = $scene[$gateway->getName()]['template'] ?? null;
+                $content = is_callable($content) ? $content($gateway, $to) : $content;
+
+                return ToolsHelper::_T($content, ['vcode' => $notification->vcode->vcode]);
             },
-            'template' => function ($gateway) use ($content) {
-                $template = $content[$gateway->getName()]['template'] ?? '';
-                return  $template ?: null;
+
+            // 短信模板
+            'template' => function ($gateway) use ($scene, $notification, $to) {
+
+                $template = $scene[$gateway->getName()]['template'] ?? null;
+
+                return is_callable($template) ? $template($gateway, $to) : $template;
             },
-            'data' => function ($gateway) use ($content) {
-                return $content[$gateway->getName()]['data'] ?? [];
+
+            // 短信变量
+            'data' => function ($gateway) use ($scene, $notification, $to) {
+
+                $data = $scene[$gateway->getName()]['data'] ?? [];
+
+                $data = is_callable($data) ? $data($gateway, $to) : $data;
+
+                foreach ($data as &$one) {
+                    $one = ToolsHelper::_T($one, ['vcode' => $notification->vcode->vcode]);
+                }
+
+                return $data;
             }
+
         ]);
     }
 }
