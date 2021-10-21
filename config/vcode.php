@@ -40,8 +40,18 @@ return [
                 // 场景1
                 'scene1' => [
 
+                    // 对发送目标的处理
+                    '_hook_set_target' => function (string &$target) {
+                        // ...
+                    },
+
                     // 发送前的钩子检测
                     '_hook_pre_send' => function (string &$target) {
+                        // ...
+                    },
+
+                    // 验证前的勾子检测
+                    '_hook_pre_verify' => function (string &$target) {
                         // ...
                     },
 

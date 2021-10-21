@@ -21,7 +21,10 @@ class VcodeBusiness
         string $captchaCode
     ) {
         // 钩子检测
-        self::callHookFunc($channel, $scene, $target, '_hook_pre_send');
+        self::callHookFunc($channel, $scene, $target, [
+            '_hook_set_target',
+            '_hook_pre_send',
+        ]);
 
         // 冷却时间
         if ($coolingTime = self::validateCoolingTime($channel, $scene, $target)) {
@@ -71,14 +74,15 @@ class VcodeBusiness
         ]);
     }
 
-    protected static function callHookFunc(string $channel, string $scene, string &$target, string $hookName)
+    protected static function callHookFunc(string $channel, string $scene, string &$target, array $hooks)
     {
         $channelCnf = config('vcode.channels.' . $channel);
 
-        $hookFunc = $channelCnf['scenes'][$scene][$hookName] ?? null;
-
-        if ($hookFunc && is_callable($hookFunc)) {
-            $hookFunc($target);
+        foreach ($hooks as $hookName) {
+            $hookFunc = $channelCnf['scenes'][$scene][$hookName] ?? null;
+            if ($hookFunc && is_callable($hookFunc)) {
+                $hookFunc($target);
+            }
         }
     }
 
@@ -134,9 +138,16 @@ class VcodeBusiness
             return true;
         }
 
+
         if (! $channel || ! $scene || ! $target || ! $vcode) {
             return false;
         }
+
+        // 钩子检测
+        self::callHookFunc($channel, $scene, $target, [
+            '_hook_set_target',
+            '_hook_pre_verify',
+        ]);
 
         if (! $rVcode = Vcode::where(compact('channel', 'scene', 'target', 'vcode'))->orderBy('id', 'desc')->first()) {
             return false;
