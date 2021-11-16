@@ -33,11 +33,16 @@ class ToolsHelper
     {
         $config = config('vcode.responses.' . $type);
 
-        $message = self::_T($config['message'], $data);
+        if (is_callable($config['message'])) {
+            $message = $config['message']();
+        }
+        else {
+            $message = $config['message'];
+        }
 
         $response = [
             'code'    => $config['code'],
-            'message' => $message,
+            'message' => self::_T($message, $data),
             'data'    => $data,
         ];
 
