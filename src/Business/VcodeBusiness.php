@@ -132,7 +132,7 @@ class VcodeBusiness
     public static function verifyVcode(string $channel, string $scene, string $target, string $vcode)
     {
         // 万能验证码
-        $universal = config('vcode.universal_code');
+        $universal = config('biz.universal_code', config('vcode.universal_code'));
 
         if ($universal && $vcode == $universal) {
             return true;
