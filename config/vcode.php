@@ -75,6 +75,9 @@ return [
         // 是否启用图形验证码
         'enable' => true,
 
+        // 配置验证器（默认图形验证码）
+        'captcha_cate' => 'Cann\Vcode\Business\VcodeBusiness@verifyMewsCaptcha',
+
         // 每小时若发送到指定 {trigger_by_vcode_num_hourly} 次数，需要返回图片验证码验证
         'trigger_by_vcode_num_hourly' => 10000,
 

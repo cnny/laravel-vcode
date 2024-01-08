@@ -17,8 +17,7 @@ class VcodeBusiness
         string $channel,
         string $scene,
         string $target,
-        string $captchaKey,
-        string $captchaCode
+        array  $captchaKwargs
     ) {
         // 钩子检测
         self::callHookFunc($channel, $scene, $target, [
@@ -32,7 +31,7 @@ class VcodeBusiness
         }
 
         // 验证图形验证码
-        if (! self::validateCaptcha($captchaKey, $captchaCode)) {
+        if (! self::validateCaptcha($captchaKwargs)) {
             return ToolsHelper::output('captcha_invalid', ['captcha_api' => route('vcode-captcha')]);
         }
 
@@ -105,7 +104,7 @@ class VcodeBusiness
     }
 
     // 短信发送总数是否达到触发图形验证码阈值
-    protected static function validateCaptcha(string $captchaKey, string $captchaCode)
+    protected static function validateCaptcha(array $captchaKwargs)
     {
         $sendNum = Vcode::whereRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H') = '" . date('Y-m-d H') . "'")->count();
 
@@ -114,8 +113,13 @@ class VcodeBusiness
             return true;
         }
 
+        $captchaCate = explode('@', config('vcode.captcha.captcha_cate'));
+
+        $class = $captchaCate[0];
+        $func  = $captchaCate[1];
+
         // 验证通过
-        if (self::verifyCaptcha($captchaKey, $captchaCode)) {
+        if ($class::$func($captchaKwargs)) {
             return true;
         }
 
@@ -194,17 +198,22 @@ class VcodeBusiness
         ]);
     }
 
-    // 验证图形验证码
-    protected static function verifyCaptcha(string $key, string $captcha)
+    // 验证mews图形验证码
+    public static function verifyMewsCaptcha(array $params)
     {
-        if (! $key || ! $captcha) {
+
+        if (! array_key_exists('captcha_key', $params) || ! $params['captcha_key']) {
             return false;
         }
 
-        $cacheKey = 'UsedCaptchaKey:' . $key;
+        if (! array_key_exists('captcha_code', $params) || ! $params['captcha_code']) {
+            return false;
+        }
+
+        $cacheKey = 'UsedCaptchaKey:' . $params['captcha_key'];
 
         // 验证码错误
-        if (! self::mewsCaptcha()->check_api($captcha, $key)) {
+        if (! self::mewsCaptcha()->check_api($params['captcha_code'], $params['captcha_key'])) {
             return false;
         }
 

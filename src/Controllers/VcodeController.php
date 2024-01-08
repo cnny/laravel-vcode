@@ -22,16 +22,17 @@ class VcodeController extends Controller
             'channel'            => 'nullable|string',
             'scene'              => 'required|in:' . implode(',', array_keys($channelCnf['scenes'])),
             $channelCnf['field'] => $channelCnf['validation'],
-            'captcha_key'        => 'nullable|string',
-            'captcha_code'       => 'nullable|string',
+            'captcha_kwargs'     => 'nullable|array',
         ]);
+
+        $captchaKwargs = $request->captcha_kwargs ?? [];
+        $captchaKwargs['ip'] = $request->ip();
 
         $response = VcodeBusiness::sendVcode(
             $channel,
             $request->scene,
             $request->{$channelCnf['field']},
-            $request->captcha_key ?? '',
-            $request->captcha_code ?? ''
+            $captchaKwargs
         );
 
         return $response;
