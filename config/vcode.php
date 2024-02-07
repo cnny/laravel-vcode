@@ -56,7 +56,7 @@ return [
                     },
 
                     // 短信服务商模板
-                    'qcloud_v3' => [
+                    'qcloud' => [
                         'template' => function ($gateway, $to) {
                             return $to->getIDDCode() == '86' ? env('SMS_QCLOUD_VCODE_TPL') : env('SMS_QCLOUD_VCODE_TPL_INTL');
                         },
