@@ -48,7 +48,9 @@ class VcodeServiceProvider extends BaseServiceProvider
     {
         // 验证中文手机号
         \Validator::extend('zh_mobile', function ($attribute, $value) {
+
             return preg_match('/^(\+?0?86\-?)?1[3-9]{1}\d{9}$/', $value);
+
         }, '你输入的是一个无效的手机号码');
 
         // 验证短信验证码有效性
@@ -67,6 +69,7 @@ class VcodeServiceProvider extends BaseServiceProvider
                 request($channelCnf['field']) ?? '',
                 $value
             );
+
         }, '验证码验证失败');
     }
 
@@ -78,11 +81,7 @@ class VcodeServiceProvider extends BaseServiceProvider
     protected function initEasySms()
     {
         $this->app->singleton('easysms', function ($app) {
-            $easySms = new EasySms(config('easysms'));
-            $easySms->extend('qcloud_v3', function ($gatewayConfig) {
-                return new QcloudV3Gateway($gatewayConfig);
-            });
-            return $easySms;
+            return new EasySms(config('easysms'));
         });
     }
 }

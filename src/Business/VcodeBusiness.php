@@ -13,12 +13,8 @@ use Mews\Captcha\Captcha;
 class VcodeBusiness
 {
     // 发送短信验证码
-    public static function sendVcode(
-        string $channel,
-        string $scene,
-        string $target,
-        array  $captchaKwargs
-    ) {
+    public static function sendVcode(string $channel, string $scene, string $target, array $captchaKwargs)
+    {
         // 钩子检测
         self::callHookFunc($channel, $scene, $target, [
             '_hook_set_target',
@@ -113,10 +109,7 @@ class VcodeBusiness
             return true;
         }
 
-        $captchaCate = explode('@', config('vcode.captcha.captcha_cate'));
-
-        $class = $captchaCate[0];
-        $func  = $captchaCate[1];
+        [$class, $func] = explode('@', config('vcode.captcha.captcha_handler'));
 
         // 验证通过
         if ($class::$func($captchaKwargs)) {

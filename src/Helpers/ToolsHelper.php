@@ -56,10 +56,11 @@ class ToolsHelper
         $nowMs = microtime(true);
 
         // 请求流水号
-        $requestSn = \Str::orderedUuid();
+        $reqNo = \Str::orderedUuid();
 
         // 记录请求报文
-        \Log::channel('api_request')->info('req:' . $requestSn, [
+        \Log::channel('api_request')->info('HTTP 请求 [SMS]', [
+            'req_no'   => $reqNo,
             'req_args' => $args,
         ]);
 
@@ -68,7 +69,8 @@ class ToolsHelper
             $response = call_user_func_array($callback, $args);
 
             // 记录响应报文（正常）
-            \Log::channel('api_request')->info('resp:' . $requestSn, [
+            \Log::channel('api_request')->info('HTTP 响应 [SMS]', [
+                'req_no'    => $reqNo,
                 'resp_body' => $response,
                 'elapsed'   => round(microtime(true) - $nowMs, 6),
             ]);
@@ -76,7 +78,8 @@ class ToolsHelper
 
         catch (\Throwable $e) {
 
-            \Log::channel('api_request')->info('resp_err:' . $requestSn, [
+            \Log::channel('api_request')->error('HTTP 响应 [SMS]', [
+                'req_no'    => $reqNo,
                 'exception' => getFullException($e),
                 'elapsed'   => round(microtime(true) - $nowMs, 6),
             ]);

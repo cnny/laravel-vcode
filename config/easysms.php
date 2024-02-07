@@ -15,7 +15,7 @@ return [
 
         // 默认可用的发送网关
         'gateways' => [
-            'qcloud_v3',
+            'qcloud',
         ],
     ],
 
@@ -26,13 +26,12 @@ return [
             'file' => storage_path('logs/easy-sms.log'),
         ],
 
-        'qcloud_v3' => [
+        'qcloud' => [
             'secret_id'  => env('SMS_QCLOUD_SECRET_ID'),
             'secret_key' => env('SMS_QCLOUD_SECRET_KEY'),
-            'region'     => env('SMS_QCLOUD_REGION'),
             'sdk_app_id' => env('SMS_QCLOUD_APP_ID'),
-            'app_key'    => env('SMS_QCLOUD_APP_KEY'),
             'sign_name'  => env('SMS_SIGN_NAME'),
+            'region'     => env('SMS_QCLOUD_REGION'),
         ],
 
         'yunpian' => [
